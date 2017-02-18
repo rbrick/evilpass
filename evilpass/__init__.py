@@ -94,7 +94,7 @@ def _check_hn(username, email, pw):
         "acct": username,
         "pw": pw
     }, allow_redirects=False)
-    return r.status_code == 200 # Redirects on success
+    return "Bad login" not in r.text
 
 checks = {
     "Twitter": _check_twitter,
