@@ -23,8 +23,13 @@ So quit doing it. Use a password manager. I personally recommend
 ## Side note
 
 If you're actually checking user's password strength on sign up, I strongly
-suggest using a minimum entropy instead of contrived rules like this. I also
+suggest using an entropy-based strength estimation like [zxcvbn][]
+instead of contrived composition rules like this, which are explicitly discouraged
+by [NIST's current password guidelines][breakdown]. I also
 suggest not trying to log into your user's account on other sites.
+
+[zxcvbn]: https://github.com/dropbox/zxcvbn
+[breakdown]: https://www.iansresearch.com/insights/blog/blog-insights/2016/08/24/ians-faculty-break-down-nist-s-proposed-new-password-guidelines
 
 ## Future development
 
