@@ -86,7 +86,7 @@ def _check_reddit(username, email, pw):
                 "passwd": pw,
                 "rem": "off"
             })
-        return not "incorrect username or password" in text
+        return "incorrect username or password" not in r.text
 
 def _check_hn(username, email, pw):
     r = _post("https://news.ycombinator.com", data={
@@ -126,7 +126,7 @@ def check_pass(pw, email, username):
         username = email
     for check in checks:
         try:
-            if checks[check](email, username, pw):
+            if checks[check](username, email, pw):
                 errors.append("Your password must not be the same as your {} password".format(check))
         except:
             pass
