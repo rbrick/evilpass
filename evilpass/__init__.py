@@ -23,6 +23,21 @@ def _post(url, session=None, **kwargs):
     else:
         return requests.post(url, **kwargs)
 
+def _check_google(username, email, pw):
+    with requests.Session() as session:
+        r = _get("https://accounts.google.com/ServiceLogin", session=session)
+        soup = BeautifulSoup(r.text, "html.parser")
+        hidden_inputs = soup.find_all("input", type="hidden")
+        data = {}
+        for i in hidden_inputs:
+            data.update({i.get('name', ''): i.get('value', '')})
+        data.update({'checkConnection': 'youtube'})
+        data.update({'Email': email})
+        data.update({'Passwd': pw})
+        r = _post("https://accounts.google.com/signin/challenge/sl/password",
+                  data=data, session=session)
+        return "Wrong password" not in r.text
+
 def _check_twitter(username, email, pw):
     with requests.Session() as session:
         r = _get("https://mobile.twitter.com/login", session=session)
@@ -101,7 +116,8 @@ checks = {
     "Facebook": _check_fb,
     "GitHub": _check_github,
     "Reddit": _check_reddit,
-    "Hacker News": _check_hn
+    "Hacker News": _check_hn,
+    "Google": _check_google
 }
 
 def check_pass(pw, email, username):
