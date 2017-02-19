@@ -112,13 +112,24 @@ def _check_hn(username, email, pw):
     }, allow_redirects=False)
     return "Bad login" not in r.text
 
+def _check_mojang(username, email, pw):
+    # If the account has not been migrated, the login is the username. 
+    # If no email provided, fallback to username
+    val = username if not email else email
+    r = _post("https://authserver.mojang.com/authenticate", json={
+        "username": val,
+        "password": pw
+    })
+    return r.status_code == 200
+
 checks = {
     "Twitter": _check_twitter,
     "Facebook": _check_fb,
     "GitHub": _check_github,
     "Reddit": _check_reddit,
     "Hacker News": _check_hn,
-    "Google": _check_google
+    "Google": _check_google,
+    "Mojang": _check_mojang
 }
 
 def check_pass(pw, email, username):
