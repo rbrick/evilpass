@@ -35,9 +35,7 @@ suggest not trying to log into your user's account on other sites.
 
 * Automate use of proxies to avoid rate limiting and other things external
   services might do when they detect you're doing this
-* Add other external services to check (I spent about 5 minutes on Google before
-  I decided it wasn't worth the time required to reverse engineer their login
-  flow, but it might be the most valuable account to try)
+* Add other external services to check
 * ~~Store valid credentials in a database for evil purposes~~
 
 https://www.xkcd.com/792/
